@@ -22,7 +22,7 @@ export class CodeBlockProcessor {
         el.appendChild(this.genErrorEl(error.message));
       } else if (error instanceof TypeError) {
         el.appendChild(
-          this.genErrorEl("internal links must be surrounded by" + " quotes.")
+          this.genErrorEl("internal links must be surrounded by" + " quotes."),
         );
         console.log(error);
       } else {
@@ -44,7 +44,7 @@ export class CodeBlockProcessor {
             indent = n;
           }
           return " ".repeat(n);
-        })
+        }),
       )
       .join("\n");
 
@@ -53,13 +53,13 @@ export class CodeBlockProcessor {
     } catch (error) {
       console.log(error);
       throw new YamlParseError(
-        "failed to parse yaml. Check debug console for more detail."
+        "failed to parse yaml. Check debug console for more detail.",
       );
     }
 
     if (!yaml || !yaml.url || !yaml.title) {
       throw new NoRequiredParamsError(
-        "required params[url, title] are not found."
+        "required params[url, title] are not found.",
       );
     }
 
@@ -159,7 +159,7 @@ export class CodeBlockProcessor {
     link = link.slice(2, -2); // remove [[]]
     const imageRelativePath = this.app.metadataCache.getFirstLinkpathDest(
       getLinkpath(link),
-      ""
+      "",
     )?.path;
 
     if (!imageRelativePath) return link;

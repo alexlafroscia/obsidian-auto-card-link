@@ -18,7 +18,7 @@ export class EditorExtensions {
 
   private static isCursorWithinBoundaries(
     cursor: EditorPosition,
-    match: RegExpMatchArray
+    match: RegExpMatchArray,
   ): boolean {
     const startIndex = match.index ?? 0;
     const endIndex = startIndex + match[0].length;
@@ -68,7 +68,7 @@ export class EditorExtensions {
 
   public static getEditorPositionFromIndex(
     content: string,
-    index: number
+    index: number,
   ): EditorPosition {
     const substr = content.substr(0, index);
 

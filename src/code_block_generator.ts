@@ -28,7 +28,7 @@ export class CodeBlockGenerator {
 
     if (start < 0) {
       console.log(
-        `Unable to find text "${fetchingText}" in current editor, bailing out; link ${url}`
+        `Unable to find text "${fetchingText}" in current editor, bailing out; link ${url}`,
       );
       return;
     }
@@ -61,7 +61,7 @@ export class CodeBlockGenerator {
   }
 
   private async fetchLinkMetadata(
-    url: string
+    url: string,
   ): Promise<LinkMetadata | undefined> {
     const res = await (async () => {
       try {

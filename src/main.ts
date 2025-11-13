@@ -103,7 +103,7 @@ export default class ObsidianAutoCardLink extends Plugin {
 
   private onPaste = async (
     evt: ClipboardEvent,
-    editor: Editor
+    editor: Editor,
   ): Promise<void> => {
     // if enhanceDefaultPaste is false, do nothing
     if (!this.settings?.enhanceDefaultPaste) return;
