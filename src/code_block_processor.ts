@@ -1,6 +1,6 @@
 import { App, parseYaml, Notice, ButtonComponent, getLinkpath } from "obsidian";
 import * as z from "zod/mini";
-import type { ParseResult } from "true-myth/standard-schema";
+import Result, { ok, err } from "true-myth/result";
 
 import { CheckIf } from "./checkif";
 import { parseLinkMetadataFromJSON } from "./code_block_parser";
@@ -42,18 +42,39 @@ export class CodeBlockProcessor {
         }),
       );
     } else {
-      el.appendChild(this.genErrorEl(z.prettifyError(data.error)));
+      el.appendChild(this.genErrorEl(data.error));
     }
   }
 
   private resolveLinkMetadataFromYaml(
     source: string,
-  ): ParseResult<LinkMetadata> {
+  ): Result<LinkMetadata, string> {
     const json = parseYaml(source);
 
-    return parseLinkMetadataFromJSON(json).map((value) => {
-      return value;
-    });
+    return parseLinkMetadataFromJSON(json)
+      .mapErr((err) => z.prettifyError(err))
+      .andThen((value) => {
+        if ("file" in value) {
+          const { file } = value;
+
+          const sourceFile = this.app.workspace.getActiveFile();
+          const referencedFile = this.app.metadataCache.getFirstLinkpathDest(
+            file,
+            sourceFile!.path,
+          );
+
+          if (!referencedFile) {
+            return err(`Could not resolve file \`${file}\``);
+          }
+
+          return ok({
+            title: referencedFile.name,
+            url: referencedFile.path,
+          });
+        } else {
+          return ok(value);
+        }
+      });
   }
 
   private genErrorEl(errorMsg: string): HTMLElement {
