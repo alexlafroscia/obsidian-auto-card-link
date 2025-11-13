@@ -67,6 +67,7 @@
   background-color: var(--background-modifier-error);
   padding: 10px;
   font-family: var(--font-text);
+  white-space: pre;
 
   &:hover {
     background: var(--background-modifier-error-hover);

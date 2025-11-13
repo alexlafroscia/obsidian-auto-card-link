@@ -1,9 +1,27 @@
 import { App, parseYaml, Notice, ButtonComponent, getLinkpath } from "obsidian";
+import * as z from "zod/mini";
 
-import { YamlParseError, NoRequiredParamsError } from "src/errors";
-import { LinkMetadataWithIndent } from "src/interfaces";
+import type { LinkMetadataWithIndent } from "src/types";
 import { CheckIf } from "./checkif";
 import { parseLinkMetadataFromJSON } from "./code_block_parser";
+
+function measureIndent(source: string): number {
+  let indent = -1;
+  source = source
+    .split(/\r?\n|\r|\n/g)
+    .map((line) =>
+      line.replace(/^\t+/g, (tabs) => {
+        const n = tabs.length;
+        if (indent < 0) {
+          indent = n;
+        }
+        return " ".repeat(n);
+      }),
+    )
+    .join("\n");
+
+  return indent;
+}
 
 export class CodeBlockProcessor {
   app: App;
@@ -13,55 +31,31 @@ export class CodeBlockProcessor {
   }
 
   async run(source: string, el: HTMLElement) {
-    try {
-      const data = this.resolveLinkMetadataFromYaml(source);
-      el.appendChild(this.genLinkEl(data));
-    } catch (error) {
-      if (error instanceof NoRequiredParamsError) {
-        el.appendChild(this.genErrorEl(error.message));
-      } else if (error instanceof YamlParseError) {
-        el.appendChild(this.genErrorEl(error.message));
-      } else if (error instanceof TypeError) {
-        el.appendChild(
-          this.genErrorEl("internal links must be surrounded by" + " quotes."),
-        );
-        console.log(error);
-      } else {
-        console.log("Code Block: cardlink unknown error", error);
-      }
+    const data = this.resolveLinkMetadataFromYaml(source);
+
+    if (data.success) {
+      el.appendChild(
+        this.genLinkEl({
+          ...data.data,
+          indent: measureIndent(source),
+        }),
+      );
+    } else {
+      el.appendChild(this.genErrorEl(z.prettifyError(data.error)));
     }
   }
 
-  private resolveLinkMetadataFromYaml(source: string): LinkMetadataWithIndent {
-    let indent = -1;
-    source = source
-      .split(/\r?\n|\r|\n/g)
-      .map((line) =>
-        line.replace(/^\t+/g, (tabs) => {
-          const n = tabs.length;
-          if (indent < 0) {
-            indent = n;
-          }
-          return " ".repeat(n);
-        }),
-      )
-      .join("\n");
-
+  private resolveLinkMetadataFromYaml(source: string) {
     const json = parseYaml(source);
 
-    return {
-      ...parseLinkMetadataFromJSON(json),
-      indent,
-    };
+    return parseLinkMetadataFromJSON(json);
   }
 
   private genErrorEl(errorMsg: string): HTMLElement {
     const containerEl = document.createElement("div");
     containerEl.addClass("auto-card-link-error-container");
 
-    const spanEl = document.createElement("span");
-    spanEl.textContent = `cardlink error: ${errorMsg}`;
-    containerEl.appendChild(spanEl);
+    containerEl.textContent = errorMsg;
 
     return containerEl;
   }

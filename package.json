@@ -23,6 +23,9 @@
     "url": "https://github.com/nekoshita/obsidian-auto-card-link/issues"
   },
   "homepage": "https://github.com/nekoshita/obsidian-auto-card-link#readme",
+  "dependencies": {
+    "zod": "^4.1.12"
+  },
   "devDependencies": {
     "@types/node": "^24.10.1",
     "builtin-modules": "^3.2.0",

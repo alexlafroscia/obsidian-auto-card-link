@@ -3,35 +3,40 @@ import { test } from "node:test";
 
 import { parseLinkMetadataFromJSON } from "./code_block_parser";
 
-test("ensuring a link had a url and title", () => {
-  assert.throws(() => {
-    parseLinkMetadataFromJSON({});
+test("ensuring a link has a url and title", () => {
+  assert.partialDeepStrictEqual(parseLinkMetadataFromJSON({}), {
+    success: false,
   });
 
-  assert.throws(() => {
+  assert.partialDeepStrictEqual(
     parseLinkMetadataFromJSON({
       url: "https://foobar.com",
-    });
-  });
+    }),
+    {
+      success: false,
+    },
+  );
 
-  assert.throws(() => {
+  assert.partialDeepStrictEqual(
     parseLinkMetadataFromJSON({
       title: "foo bar",
-    });
-  });
+    }),
+    {
+      success: false,
+    },
+  );
 
-  assert.deepEqual(
+  assert.partialDeepStrictEqual(
     parseLinkMetadataFromJSON({
       url: "https://foobar.com",
       title: "foo bar",
     }),
     {
-      url: "https://foobar.com",
-      title: "foo bar",
-      description: undefined,
-      favicon: undefined,
-      host: undefined,
-      image: undefined,
+      success: true,
+      data: {
+        url: "https://foobar.com",
+        title: "foo bar",
+      },
     },
   );
 });

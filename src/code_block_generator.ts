@@ -1,6 +1,6 @@
 import { Editor, Notice, requestUrl } from "obsidian";
 
-import { LinkMetadata } from "src/interfaces";
+import { LinkMetadata } from "src/types";
 import { EditorExtensions } from "src/editor_enhancements";
 import { LinkMetadataParser } from "src/link_metadata_parser";
 

@@ -1,4 +1,4 @@
-import { LinkMetadataWithIndent } from "src/interfaces";
+import { LinkMetadataWithIndent } from "src/types";
 
 export class LinkMetadataParser {
   url: string;
