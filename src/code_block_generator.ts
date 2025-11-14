@@ -1,6 +1,7 @@
 import { Editor, Notice, requestUrl } from "obsidian";
+import * as z from "zod/mini";
 
-import { LinkMetadata } from "src/types";
+import { LinkEmbedContents } from "./schema/code-block-contents";
 import { EditorExtensions } from "src/editor_enhancements";
 import { LinkMetadataParser } from "src/link_metadata_parser";
 
@@ -46,23 +47,26 @@ export class CodeBlockGenerator {
     this.editor.replaceRange(this.genCodeBlock(linkMetadata), startPos, endPos);
   }
 
-  genCodeBlock(linkMetadata: LinkMetadata): string {
-    const codeBlockTexts = ["\n```cardlink"];
-    codeBlockTexts.push(`url: ${linkMetadata.url}`);
-    codeBlockTexts.push(`title: "${linkMetadata.title}"`);
-    if (linkMetadata.description)
-      codeBlockTexts.push(`description: "${linkMetadata.description}"`);
-    if (linkMetadata.host) codeBlockTexts.push(`host: ${linkMetadata.host}`);
-    if (linkMetadata.favicon)
-      codeBlockTexts.push(`favicon: ${linkMetadata.favicon}`);
-    if (linkMetadata.image) codeBlockTexts.push(`image: ${linkMetadata.image}`);
-    codeBlockTexts.push("```\n");
-    return codeBlockTexts.join("\n");
+  genCodeBlock(linkMetadata: LinkEmbedContents): string {
+    const encoded = z.encode(LinkEmbedContents, linkMetadata);
+
+    return [
+      "\n```cardlink",
+      `url: ${encoded.url}`,
+      `title: "${encoded.title}"`,
+      linkMetadata.description && `description: "${encoded.description}"`,
+      linkMetadata.host && `host: ${encoded.host}`,
+      linkMetadata.favicon && `favicon: ${encoded.favicon}`,
+      linkMetadata.image && `image: ${encoded.image}`,
+      "```\n",
+    ]
+      .filter((line) => typeof line === "string")
+      .join("\n");
   }
 
   private async fetchLinkMetadata(
     url: string,
-  ): Promise<LinkMetadata | undefined> {
+  ): Promise<LinkEmbedContents | undefined> {
     const res = await (async () => {
       try {
         return requestUrl({ url });

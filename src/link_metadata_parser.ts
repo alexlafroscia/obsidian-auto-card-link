@@ -1,4 +1,4 @@
-import { LinkMetadataWithIndent } from "src/types";
+import { LinkEmbedContents } from "./schema/code-block-contents";
 
 export class LinkMetadataParser {
   url: string;
@@ -12,12 +12,13 @@ export class LinkMetadataParser {
     this.htmlDoc = htmlDoc;
   }
 
-  async parse(): Promise<LinkMetadataWithIndent | undefined> {
+  async parse(): Promise<LinkEmbedContents | undefined> {
     const title = this.getTitle()
       ?.replace(/\r\n|\n|\r/g, "")
       .replace(/\\/g, "\\\\")
       .replace(/"/g, '\\"')
       .trim();
+
     if (!title) return;
 
     const description = this.getDescription()
@@ -34,9 +35,18 @@ export class LinkMetadataParser {
       title: title,
       description: description,
       host: hostname,
-      favicon: favicon,
-      image: image,
-      indent: 0,
+      favicon: favicon
+        ? {
+            type: "external",
+            value: favicon,
+          }
+        : undefined,
+      image: image
+        ? {
+            type: "external",
+            value: image,
+          }
+        : undefined,
     };
   }
 
