@@ -1,10 +1,14 @@
-import { App, BasesEntry, BasesPropertyId } from "obsidian";
+import { App, BasesEntry, BasesPropertyId, BasesViewConfig } from "obsidian";
 import Result, { ok, err } from "true-myth/result";
 
 import { makeOnClickHandler } from "./file-card";
 import { resolveImageLink } from "./image-link";
 import { InternalLinkProps } from "../components/link-card";
 import { parseImageLink } from "../schema/image-link";
+import {
+  type ConfigKey,
+  getAsValidPropertyId,
+} from "../bases-views/file-card-list-config";
 
 function getValue(
   entry: BasesEntry,
@@ -23,36 +27,50 @@ function getValue(
   return ok(value.toString());
 }
 
+function getValueForProperty(
+  key: ConfigKey,
+  config: BasesViewConfig,
+  entry: BasesEntry,
+) {
+  return ok(getAsValidPropertyId(config, key)).andThen((propertyId) =>
+    getValue(entry, propertyId),
+  );
+}
+
 export function resolveBasesEntryCardProps(
   entry: BasesEntry,
+  config: BasesViewConfig,
   app: App,
 ): InternalLinkProps {
   const { file } = entry;
 
-  const title = getValue(entry, "note.title").unwrapOr(file.basename);
+  const title = getValueForProperty("title", config, entry).unwrapOr("");
 
-  const urlResult = getValue(entry, "note.url");
+  const urlResult = getValueForProperty("url", config, entry);
   const url = urlResult.unwrapOr(undefined);
-  const host = getValue(entry, "note.host")
-    .match({
-      Ok: (host) => ok(host),
-      Err: () =>
-        urlResult.map((url) => {
-          const parsedUrl = new URL(url);
 
-          return parsedUrl.host;
-        }),
-    })
+  const host = getValueForProperty("host", config, entry)
+    .or(
+      urlResult.map((url) => {
+        const parsedUrl = new URL(url);
+
+        return parsedUrl.hostname;
+      }),
+    )
     .unwrapOr(undefined);
 
-  const description = getValue(entry, "note.description").unwrapOr(undefined);
+  const description = getValueForProperty(
+    "description",
+    config,
+    entry,
+  ).unwrapOr(undefined);
 
-  const image = getValue(entry, "note.image")
+  const image = getValueForProperty("image", config, entry)
     .andThen((imagePropertyValue) => parseImageLink(imagePropertyValue))
     .andThen((imageLink) => resolveImageLink(imageLink, app))
     .unwrapOr(undefined);
 
-  const favicon = getValue(entry, "note.favicon")
+  const favicon = getValueForProperty("favicon", config, entry)
     .andThen((imagePropertyValue) => parseImageLink(imagePropertyValue))
     .andThen((imageLink) => resolveImageLink(imageLink, app))
     .unwrapOr(undefined);

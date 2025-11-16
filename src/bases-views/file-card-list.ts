@@ -16,7 +16,7 @@ export class FileCardListView extends BasesView {
 
   onDataUpdated() {
     const cardElements = this.data.data
-      .map((entry) => resolveBasesEntryCardProps(entry, this.app))
+      .map((entry) => resolveBasesEntryCardProps(entry, this.config, this.app))
       .map((props) => createLinkCard({ ...props, indent: 0 }))
       // Insert a paragraph between each card to act as a spacer
       .flatMap((cardElement, index) => {

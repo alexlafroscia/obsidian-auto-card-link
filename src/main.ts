@@ -12,6 +12,7 @@ import { CodeBlockProcessor } from "src/code_block_processor";
 import { linkRegex } from "src/regex";
 
 import { FileCardListView } from "./bases-views/file-card-list";
+import { getViewOptions } from "./bases-views/file-card-list-config";
 
 export default class ObsidianAutoCardLink extends Plugin {
   settings?: ObsidianAutoCardLinkSettings;
@@ -28,6 +29,7 @@ export default class ObsidianAutoCardLink extends Plugin {
       name: "File Card List",
       icon: "link",
       factory: (controller, el) => new FileCardListView(controller, el),
+      options: getViewOptions,
     });
 
     this.addCommand({
