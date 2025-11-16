@@ -1,7 +1,7 @@
 import { App, getLinkpath } from "obsidian";
 import Result, { ok, err } from "true-myth/result";
 
-import { LinkEmbedContents } from "../schema/code-block-contents";
+import type { Card } from "../schema/card";
 import { ImageLink } from "../schema/image-link";
 
 function resolveInternalImageLink(
@@ -33,7 +33,7 @@ export function resolveImageLink(
   }
 }
 
-type ImageProperties = Pick<LinkEmbedContents, "image" | "favicon">;
+type ImageProperties = Pick<Card, "image" | "favicon">;
 
 export function resolveImageProperties(props: ImageProperties, app: App) {
   const { image, favicon } = props;

@@ -4,15 +4,12 @@ import Result from "true-myth/result";
 import Task, { fromPromise } from "true-myth/task";
 import { fromMaybe } from "true-myth/toolbelt";
 
-import {
-  type FileEmbedContents,
-  parseLinkEmbedContents,
-} from "../schema/code-block-contents";
-import type { InternalLinkProps as FullInternalLinkProps } from "../components/link-card";
-import { resolveImageProperties } from "./image-link";
-import { ensureFaviconHasHost } from "./common";
+import { FileCardProps } from "../components/file-card";
+import type { FileEmbedContents } from "../schema/code-block-contents";
+import { parseCard } from "../schema/card";
 
-type InternalLinkProps = Omit<FullInternalLinkProps, "indent">;
+import { enhanceCard } from "./card";
+import { resolveImageProperties } from "./image-link";
 
 export function resolveFileReference(
   value: FileEmbedContents,
@@ -42,7 +39,7 @@ export function makeOnClickHandler(file: TFile, app: App) {
 export function resolveFileCardProps(
   file: TFile,
   app: App,
-): Task<InternalLinkProps, string> {
+): Task<FileCardProps, string> {
   const resolveFrontmatter = new Promise<{ url: string }>((resolve) => {
     app.fileManager.processFrontMatter(file, (frontmatter) => {
       resolve(frontmatter);
@@ -56,38 +53,14 @@ export function resolveFileCardProps(
     resolveFrontmatterTask
       // Extract card props from file frontmatter
       .andThen((frontmatter) =>
-        parseLinkEmbedContents({
+        parseCard({
           title: file.basename,
           ...frontmatter,
         }),
       )
-      // Compute a `host` from the `url` if not explicitly provided
-      .map((frontmatter) => ({
-        ...frontmatter,
-
-        host: maybeOf(frontmatter.host).unwrapOrElse(() => {
-          const parsedUrl = new URL(frontmatter.url);
-
-          return parsedUrl.hostname;
-        }),
-      }))
-      // Resolve external image links to a renderable URL
-      .map((frontmatter) => ({
-        ...frontmatter,
-        ...resolveImageProperties(frontmatter, app),
-      }))
-      // Resolve the favicon relative to `url` if necessary
-      .map(({ url, favicon, ...rest }) => ({
-        ...rest,
-
-        favicon: maybeOf(favicon)
-          .map((favicon) => ensureFaviconHasHost(favicon, url))
-          .unwrapOr(undefined),
-      }))
-      // Add click handler to open the file
-      .map((cardProps) => ({
-        ...cardProps,
-
+      .map((card) => ({
+        ...enhanceCard(card),
+        ...resolveImageProperties(card, app),
         onClick: makeOnClickHandler(file, app),
       }))
   );

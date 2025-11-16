@@ -2,19 +2,22 @@ import { Notice, ButtonComponent } from "obsidian";
 
 import { CommonCardProps } from "./common";
 
-export interface LinkCardProps extends CommonCardProps {
-  url: string;
-  indent?: number;
+export interface FileCardProps extends CommonCardProps {
+  url?: string;
+
+  onClick: (event: MouseEvent) => void;
 }
 
-export function createLinkCard(props: LinkCardProps): HTMLElement {
+/* === Card Creation === */
+
+export function createFileCard(props: FileCardProps): HTMLElement {
   const containerEl = document.createElement("div");
   containerEl.addClass("auto-card-link-container");
-  containerEl.setAttr("data-auto-card-link-depth", props.indent ?? 0);
+  containerEl.setAttr("data-auto-card-link-depth", 0);
 
-  const cardEl = document.createElement("a");
+  const cardEl = document.createElement("div");
   cardEl.addClass("auto-card-link-card");
-  cardEl.setAttr("href", props.url);
+  cardEl.onClickEvent(props.onClick);
   containerEl.appendChild(cardEl);
 
   const mainEl = document.createElement("div");

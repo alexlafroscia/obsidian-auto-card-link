@@ -1,7 +1,7 @@
 import { Editor, Notice, requestUrl } from "obsidian";
 import * as z from "zod/mini";
 
-import { LinkEmbedContents } from "./schema/code-block-contents";
+import { Card } from "./schema/card";
 import { EditorExtensions } from "src/editor_enhancements";
 import { LinkMetadataParser } from "src/link_metadata_parser";
 
@@ -47,8 +47,8 @@ export class CodeBlockGenerator {
     this.editor.replaceRange(this.genCodeBlock(linkMetadata), startPos, endPos);
   }
 
-  genCodeBlock(linkMetadata: LinkEmbedContents): string {
-    const encoded = z.encode(LinkEmbedContents, linkMetadata);
+  genCodeBlock(linkMetadata: Card): string {
+    const encoded = z.encode(Card, linkMetadata);
 
     return [
       "\n```cardlink",
@@ -64,9 +64,7 @@ export class CodeBlockGenerator {
       .join("\n");
   }
 
-  private async fetchLinkMetadata(
-    url: string,
-  ): Promise<LinkEmbedContents | undefined> {
+  private async fetchLinkMetadata(url: string): Promise<Card | undefined> {
     const res = await (async () => {
       try {
         return requestUrl({ url });

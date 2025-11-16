@@ -1,14 +1,15 @@
 import { App, BasesEntry, BasesPropertyId, BasesViewConfig } from "obsidian";
 import Result, { ok, err } from "true-myth/result";
 
-import { makeOnClickHandler } from "./file-card";
-import { resolveImageLink } from "./image-link";
-import { InternalLinkProps } from "../components/link-card";
-import { parseImageLink } from "../schema/image-link";
 import {
   type ConfigKey,
   getAsValidPropertyId,
 } from "../bases-views/file-card-list-config";
+import type { FileCardProps } from "../components/file-card";
+import { parseImageLink } from "../schema/image-link";
+
+import { makeOnClickHandler } from "./file-to-component-props";
+import { resolveImageLink } from "./image-link";
 
 function getValue(
   entry: BasesEntry,
@@ -41,7 +42,7 @@ export function resolveBasesEntryCardProps(
   entry: BasesEntry,
   config: BasesViewConfig,
   app: App,
-): InternalLinkProps {
+): FileCardProps {
   const { file } = entry;
 
   const title = getValueForProperty("title", config, entry).unwrapOr("");
@@ -82,7 +83,6 @@ export function resolveBasesEntryCardProps(
     description,
     image,
     favicon,
-    indent: 0,
     onClick: makeOnClickHandler(file, app),
-  } satisfies InternalLinkProps;
+  } satisfies FileCardProps;
 }

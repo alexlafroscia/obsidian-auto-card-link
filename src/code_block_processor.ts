@@ -3,14 +3,15 @@ import { fromResult } from "true-myth/task";
 
 import { parseCodeblockContents } from "./schema/code-block-contents";
 
+import { createFileCard } from "./components/file-card";
 import { createLinkCard } from "./components/link-card";
 import { createErrorCard } from "./components/error-card";
 
 import {
   resolveFileCardProps,
   resolveFileReference,
-} from "./resolvers/file-card";
-import { resolveLinkCardProps } from "./resolvers/link-card";
+} from "./resolvers/file-to-component-props";
+import { resolveComponentPropsFromCard } from "./resolvers/card-to-component-props";
 
 function measureIndent(source: string): number {
   let indent = -1;
@@ -41,24 +42,22 @@ export class CodeBlockProcessor {
     const cardElement = await fromResult(this.parseCodeBlock(source))
       .andThen((contents) => {
         if ("file" in contents) {
-          const resolvedFile = fromResult(
-            resolveFileReference(contents, this.app),
-          );
-
-          return resolvedFile.andThen((file) =>
-            resolveFileCardProps(file, this.app),
-          );
+          return fromResult(resolveFileReference(contents, this.app))
+            .andThen((file) => resolveFileCardProps(file, this.app))
+            .map((fileProps) => createFileCard(fileProps));
         } else {
-          return resolveLinkCardProps(contents, this.app);
+          return resolveComponentPropsFromCard(contents, this.app).map(
+            (cardProps) =>
+              createLinkCard({
+                ...cardProps,
+                indent: measureIndent(source),
+              }),
+          );
         }
       })
       .match({
+        Resolved: (element) => element,
         Rejected: (error) => createErrorCard(error),
-        Resolved: (value) =>
-          createLinkCard({
-            ...value,
-            indent: measureIndent(source),
-          }),
       });
 
     el.appendChild(cardElement);

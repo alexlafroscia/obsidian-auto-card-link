@@ -1,4 +1,4 @@
-import { LinkEmbedContents } from "./schema/code-block-contents";
+import { Card } from "./schema/card";
 
 export class LinkMetadataParser {
   url: string;
@@ -12,7 +12,7 @@ export class LinkMetadataParser {
     this.htmlDoc = htmlDoc;
   }
 
-  async parse(): Promise<LinkEmbedContents | undefined> {
+  async parse(): Promise<Card | undefined> {
     const title = this.getTitle()
       ?.replace(/\r\n|\n|\r/g, "")
       .replace(/\\/g, "\\\\")

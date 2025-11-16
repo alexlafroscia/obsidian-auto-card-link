@@ -3,7 +3,7 @@ import * as z from "zod/mini";
 import { InternalLink } from "./internal-link";
 import { makeSchemaParser } from "./make-schema-parser";
 
-export const ExternalImageLink = z.codec(
+const ExternalImageLink = z.codec(
   z.url("Value must be a URL"),
   z.object({
     type: z.literal("external"),

@@ -1,6 +1,6 @@
 import { BasesView, QueryController } from "obsidian";
 
-import { createLinkCard } from "../components/link-card";
+import { createFileCard } from "../components/file-card";
 import { resolveBasesEntryCardProps } from "../resolvers/bases-entry-card";
 
 export class FileCardListView extends BasesView {
@@ -17,7 +17,7 @@ export class FileCardListView extends BasesView {
   onDataUpdated() {
     const cardElements = this.data.data
       .map((entry) => resolveBasesEntryCardProps(entry, this.config, this.app))
-      .map((props) => createLinkCard({ ...props, indent: 0 }))
+      .map((props) => createFileCard(props))
       // Insert a paragraph between each card to act as a spacer
       .flatMap((cardElement, index) => {
         if (index === 0) {
