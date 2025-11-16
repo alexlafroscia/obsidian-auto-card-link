@@ -1,4 +1,4 @@
-name: Release Obsidian plugin
+name: Release
 
 on:
   push:
@@ -14,12 +14,13 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - uses: volta-cli/action@v4
+
+      - uses: actions/setup-node@v6
+      - run: yarn install
 
       - name: Build
         id: build
         run: |
-          yarn install
           yarn build
           mkdir ${{ env.PLUGIN_NAME }}
           cp main.js manifest.json styles.css ${{ env.PLUGIN_NAME }}
