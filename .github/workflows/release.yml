@@ -21,6 +21,8 @@ jobs:
       - name: Build plugin
         run: yarn build
 
+      # Recommended Release Workflow
+      # https://docs.obsidian.md/Plugins/Releasing/Release+your+plugin+with+GitHub+Actions
       - name: Create release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -29,5 +31,4 @@ jobs:
 
           gh release create "$tag" \
             --title="$tag" \
-            --draft \
             main.js manifest.json styles.css
