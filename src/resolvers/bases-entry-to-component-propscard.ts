@@ -1,4 +1,9 @@
-import { App, BasesEntry, BasesPropertyId, BasesViewConfig } from "obsidian";
+import type {
+  App,
+  BasesEntry,
+  BasesPropertyId,
+  BasesViewConfig,
+} from "obsidian";
 import Result, { ok, err } from "true-myth/result";
 
 import {

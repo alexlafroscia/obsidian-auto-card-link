@@ -1,4 +1,4 @@
-import { BasesPropertyId, BasesViewConfig, ViewOption } from "obsidian";
+import type { BasesPropertyId, BasesViewConfig, ViewOption } from "obsidian";
 
 interface PropertyOption {
   displayName: string;

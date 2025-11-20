@@ -4,7 +4,7 @@ import Result from "true-myth/result";
 import Task, { fromPromise } from "true-myth/task";
 import { fromMaybe } from "true-myth/toolbelt";
 
-import { FileCardProps } from "../components/file-card";
+import type { FileCardProps } from "../components/file-card";
 import type { FileEmbedContents } from "../schema/code-block-contents";
 import { parseCard } from "../schema/card";
 

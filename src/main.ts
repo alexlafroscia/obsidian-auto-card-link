@@ -1,7 +1,7 @@
 import { Plugin, MarkdownView, Editor, Menu, MenuItem } from "obsidian";
 
 import {
-  ObsidianAutoCardLinkSettings,
+  type ObsidianAutoCardLinkSettings,
   ObsidianAutoCardLinkSettingTab,
   DEFAULT_SETTINGS,
 } from "src/settings";

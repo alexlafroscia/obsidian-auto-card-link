@@ -1,4 +1,4 @@
-import { Editor, EditorPosition } from "obsidian";
+import { Editor, type EditorPosition } from "obsidian";
 
 import { linkLineRegex, lineRegex } from "src/regex";
 

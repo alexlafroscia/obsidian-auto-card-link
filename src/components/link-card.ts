@@ -1,6 +1,6 @@
 import { Notice, ButtonComponent } from "obsidian";
 
-import { CommonCardProps } from "./common";
+import type { CommonCardProps } from "./common";
 
 export interface LinkCardProps extends CommonCardProps {
   url: string;
