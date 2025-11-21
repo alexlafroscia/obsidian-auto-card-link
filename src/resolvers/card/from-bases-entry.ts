@@ -11,7 +11,7 @@ import {
   type ConfigKey,
   getAsValidPropertyId,
 } from "../../bases-views/file-card-list-config";
-import type { FileCardProps } from "../../components/file-card";
+import type { FileCardProps } from "../../components/FileCard.svelte";
 import {
   type Card,
   getFailureResultMessages,

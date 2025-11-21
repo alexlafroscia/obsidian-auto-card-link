@@ -1,4 +1,4 @@
-import { Card } from "./schema/card";
+import type { CardStructure } from "./schema/card-structure";
 
 export class LinkMetadataParser {
   url: string;
@@ -12,7 +12,7 @@ export class LinkMetadataParser {
     this.htmlDoc = htmlDoc;
   }
 
-  async parse(): Promise<Card | undefined> {
+  async parse(): Promise<CardStructure | undefined> {
     const title = this.getTitle()
       ?.replace(/\r\n|\n|\r/g, "")
       .replace(/\\/g, "\\\\")
@@ -35,18 +35,8 @@ export class LinkMetadataParser {
       title: title,
       description: description,
       host: hostname,
-      favicon: favicon
-        ? {
-            type: "absolute",
-            value: favicon,
-          }
-        : undefined,
-      image: image
-        ? {
-            type: "absolute",
-            value: image,
-          }
-        : undefined,
+      favicon,
+      image,
     };
   }
 
