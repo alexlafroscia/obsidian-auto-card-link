@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "node esbuild.config.js",
     "build": "yarn run typecheck && node esbuild.config.js production",
-    "typecheck": "tsc --noEmit -skipLibCheck",
+    "typecheck": "svelte-check --tsconfig tsconfig.json",
     "format": "prettier . --write",
     "version": "node version-bump.js && git add manifest.json versions.json && yarn run format",
     "test": "node --import=tsx --test 'src/**/*.test.ts'",
@@ -31,8 +31,12 @@
     "@types/node": "^24.10.1",
     "builtin-modules": "^3.2.0",
     "esbuild": "0.17.3",
+    "esbuild-svelte": "^0.9.3",
     "obsidian": "^1.10.3",
     "prettier": "^3.6.2",
+    "svelte": "^5.43.12",
+    "svelte-check": "^4.3.4",
+    "svelte-preprocess": "^6.0.3",
     "tslib": "^2.8.1",
     "tsx": "^4.20.6",
     "typescript": "^5.9.3"

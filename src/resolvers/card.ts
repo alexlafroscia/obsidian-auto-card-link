@@ -1,17 +1,30 @@
+import { just } from "true-myth/maybe";
+import { ok } from "true-myth/result";
+
 import type { Card } from "../schema/card";
 
 function ensureHostIsDefined({
-  host,
-  url,
-}: Card): Pick<Card, "host"> | undefined {
-  if (host) {
-    return undefined;
-  }
-
-  const parsedUrl = new URL(url);
-
+  host: hostResult,
+  url: urlResult,
+}: Card): Pick<Card, "host"> {
   return {
-    host: parsedUrl.hostname,
+    host: hostResult
+      // If the host does not have an error...
+      .andThen((maybeHost) =>
+        maybeHost.match({
+          Just: (host) => ok(just(host)),
+          // ... but is not defined...
+          Nothing: () =>
+            // ... try to parse the host from the url
+            urlResult.map((maybeUrl) =>
+              maybeUrl.map((urlString) => {
+                const url = new URL(urlString);
+
+                return url.hostname;
+              }),
+            ),
+        }),
+      ),
   };
 }
 

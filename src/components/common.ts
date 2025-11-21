@@ -1,8 +1,13 @@
-export interface CommonCardProps {
-  title: string;
+import Maybe from "true-myth/maybe";
+import Result from "true-myth/result";
 
-  description?: string;
-  favicon?: string | undefined;
-  host?: string;
-  image?: string | undefined;
-}
+export type CardProp = Result<Maybe<string>, string[]>;
+
+export type CommonCardProps = {
+  title: CardProp;
+  description: CardProp;
+  url: CardProp;
+  host: CardProp;
+  favicon: CardProp;
+  image: CardProp;
+};

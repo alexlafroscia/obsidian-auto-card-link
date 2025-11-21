@@ -59,21 +59,6 @@
   }
 }
 
-.auto-card-link-error-container {
-  max-width: 780px;
-  margin: 1em auto;
-  border-radius: 8px;
-  overflow: hidden;
-  background-color: var(--background-modifier-error);
-  padding: 10px;
-  font-family: var(--font-text);
-  white-space: pre;
-
-  &:hover {
-    background: var(--background-modifier-error-hover);
-  }
-}
-
 .auto-card-link-card {
   display: flex;
   flex-direction: row-reverse;
@@ -142,7 +127,6 @@
   }
 
   /* Prevent clash with copy url button */
-  .auto-card-link-container:hover &,
   .is-mobile .auto-card-link-container & {
     margin-right: var(--auto-card-link-button-width);
   }
@@ -167,14 +151,8 @@
   pointer-events: none;
 }
 
-.auto-card-link-copy-url {
-  position: absolute;
-  right: var(--size-2-2);
-  bottom: var(--size-2-2);
-  z-index: 1;
-
-  /* Show copy button only on hover on desktop */
-  .obsidian-app:not(.is-mobile) .auto-card-link-container:not(:hover) & {
-    display: none;
-  }
+/* Tweak the edit block button to match the padding of the card */
+.block-language-cardlink + .edit-block-button {
+  top: 0.5em !important;
+  right: 0.6em !important;
 }

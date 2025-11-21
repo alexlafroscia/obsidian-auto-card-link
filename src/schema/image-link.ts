@@ -1,7 +1,6 @@
 import * as z from "zod/mini";
 
 import { InternalLink } from "./internal-link";
-import { makeSchemaParser } from "./make-schema-parser";
 
 const AbsoluteExternalImageLink = z.codec(
   z.url("Value must be an absolute URL"),
@@ -48,5 +47,3 @@ export const ImageLink = z.union(
 );
 
 export type ImageLink = z.infer<typeof ImageLink>;
-
-export const parseImageLink = makeSchemaParser(ImageLink);

@@ -11,7 +11,7 @@ import { CodeBlockGenerator } from "src/code_block_generator";
 import { CodeBlockProcessor } from "src/code_block_processor";
 import { linkRegex } from "src/regex";
 
-import { FileCardListView } from "./bases-views/file-card-list";
+import { FileCardListView } from "./bases-views/file-card-list.svelte";
 import { getViewOptions } from "./bases-views/file-card-list-config";
 
 export default class ObsidianAutoCardLink extends Plugin {
@@ -20,10 +20,12 @@ export default class ObsidianAutoCardLink extends Plugin {
   async onload() {
     await this.loadSettings();
 
-    this.registerMarkdownCodeBlockProcessor("cardlink", async (source, el) => {
-      const processor = new CodeBlockProcessor(this.app);
-      await processor.run(source, el);
-    });
+    this.registerMarkdownCodeBlockProcessor(
+      "cardlink",
+      async (source, el, context) => {
+        context.addChild(new CodeBlockProcessor(source, this.app, el));
+      },
+    );
 
     this.registerBasesView("file-card-list", {
       name: "File Card List",

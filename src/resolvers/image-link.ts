@@ -1,31 +1,27 @@
 import { App, getLinkpath } from "obsidian";
-import { of } from "true-myth/maybe";
-import Result, { ok } from "true-myth/result";
-import { fromMaybe, fromResult } from "true-myth/toolbelt";
+import { of, just, nothing } from "true-myth/maybe";
+import { ok } from "true-myth/result";
 
 import type { Card } from "../schema/card";
 import { ImageLink, URLPath } from "../schema/image-link";
+import type { CommonCardProps, CardProp } from "src/components/common";
 
-function resolveInternalImageLink(
-  link: string,
-  app: App,
-): Result<string, string> {
+function resolveInternalImageLink(link: string, app: App): CardProp {
   const linkPath = getLinkpath(link);
 
   const path = of(app.metadataCache.getFirstLinkpathDest(linkPath, ""))
     .map((file) => file.path)
     .map((path) => app.vault.adapter.getResourcePath(path));
 
-  return fromMaybe(`Could not resolve image path \`${linkPath}\``, path);
+  return ok(path);
 }
 
-function resolveRelativeURL(
-  card: Pick<Card, "url">,
-  value: URLPath,
-): Result<string, string> {
-  const url = new URL(value, card.url);
-
-  return ok(url.toString());
+function resolveRelativeURL(card: Pick<Card, "url">, value: URLPath): CardProp {
+  return card.url.map((maybeUrl) =>
+    maybeUrl.map((url) => {
+      return new URL(value, url).toString();
+    }),
+  );
 }
 
 /**
@@ -44,10 +40,10 @@ export function resolveImageLink(
   imageLink: ImageLink,
   card: Pick<Card, "url">,
   app: App,
-): Result<string, string> {
+): CardProp {
   switch (imageLink.type) {
     case "absolute":
-      return ok(imageLink.value);
+      return ok(just(imageLink.value));
     case "relative":
       return resolveRelativeURL(card, imageLink.value);
     case "internal":
@@ -55,17 +51,26 @@ export function resolveImageLink(
   }
 }
 
-type ImageProperties = Pick<Card, "image" | "favicon" | "url">;
+type RequiredCardImageProperties = Pick<Card, "image" | "favicon" | "url">;
 
-export function resolveImageProperties(props: ImageProperties, app: App) {
+export function extractImageProperties(
+  props: RequiredCardImageProperties,
+  app: App,
+): Pick<CommonCardProps, "image" | "favicon"> {
   const { image, favicon } = props;
 
   return {
-    image: of(image)
-      .andThen((image) => fromResult(resolveImageLink(image, props, app)))
-      .unwrapOr(undefined),
-    favicon: of(favicon)
-      .andThen((favicon) => fromResult(resolveImageLink(favicon, props, app)))
-      .unwrapOr(undefined),
+    image: image.andThen((maybeImage) =>
+      maybeImage.match({
+        Nothing: () => ok(nothing()),
+        Just: (image) => resolveImageLink(image, props, app),
+      }),
+    ),
+    favicon: favicon.andThen((maybeFavicon) =>
+      maybeFavicon.match({
+        Nothing: () => ok(nothing()),
+        Just: (favicon) => resolveImageLink(favicon, props, app),
+      }),
+    ),
   };
 }

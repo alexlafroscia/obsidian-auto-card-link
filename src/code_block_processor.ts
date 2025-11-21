@@ -1,71 +1,98 @@
-import { App, parseYaml } from "obsidian";
+import { App, MarkdownRenderChild, parseYaml } from "obsidian";
+import { ok, tryOr } from "true-myth/result";
 import { fromResult } from "true-myth/task";
+import { mount, unmount } from "svelte";
 
-import { parseCodeblockContents } from "./schema/code-block-contents";
-
-import { createFileCard } from "./components/file-card";
-import { createLinkCard } from "./components/link-card";
-import { createErrorCard } from "./components/error-card";
-
+import {
+  type FileEmbedContents,
+  parseCodeblockContents,
+} from "./schema/code-block-contents";
+import type { CardStructure } from "./schema/card-structure";
 import {
   resolveFileCardProps,
   resolveFileReference,
-} from "./resolvers/file-to-component-props";
+} from "./resolvers/card/from-frontmatter";
 import { resolveComponentPropsFromCard } from "./resolvers/card-to-component-props";
+import { fromCardStructure, getFailureResultMessages } from "./schema/card";
 
-function measureIndent(source: string): number {
-  let indent = -1;
-  source = source
-    .split(/\r?\n|\r|\n/g)
-    .map((line) =>
-      line.replace(/^\t+/g, (tabs) => {
-        const n = tabs.length;
-        if (indent < 0) {
-          indent = n;
-        }
-        return " ".repeat(n);
-      }),
-    )
-    .join("\n");
+import FileCard from "./components/FileCard.svelte";
+import LinkCard from "./components/LinkCard.svelte";
+import Error from "./components/Error.svelte";
 
-  return indent;
-}
+export class CodeBlockProcessor extends MarkdownRenderChild {
+  private source: string;
+  private app: App;
 
-export class CodeBlockProcessor {
-  app: App;
+  private renderedComponent?: {};
 
-  constructor(app: App) {
+  constructor(source: string, app: App, containerEl: HTMLElement) {
+    super(containerEl);
+
+    this.source = source;
     this.app = app;
   }
 
-  async run(source: string, el: HTMLElement) {
-    const cardElement = await fromResult(this.parseCodeBlock(source))
+  async load() {
+    this.renderedComponent = await fromResult(
+      tryOr("Failed to parse YAML", () => parseYaml(this.source)),
+    )
+      .andThen((yaml) => parseCodeblockContents(yaml))
       .andThen((contents) => {
         if ("file" in contents) {
-          return fromResult(resolveFileReference(contents, this.app))
-            .andThen((file) => resolveFileCardProps(file, this.app))
-            .map((fileProps) => createFileCard(fileProps));
+          return this.renderCardForFile(contents, this.containerEl);
         } else {
-          return resolveComponentPropsFromCard(contents, this.app).map(
-            (cardProps) =>
-              createLinkCard({
-                ...cardProps,
-                indent: measureIndent(source),
-              }),
-          );
+          return ok(this.renderCardForInlineLink(contents, this.containerEl));
         }
       })
+      .mapRejected((error) =>
+        Array.isArray(error)
+          ? error
+          : typeof error === "string"
+            ? [error]
+            : getFailureResultMessages(error),
+      )
       .match({
-        Resolved: (element) => element,
-        Rejected: (error) => createErrorCard(error),
+        Resolved: (value) => value,
+        Rejected: (reason) => this.renderError(reason, this.containerEl),
       });
-
-    el.appendChild(cardElement);
   }
 
-  private parseCodeBlock(source: string) {
-    const json = parseYaml(source);
+  unload(): void {
+    if (this.renderedComponent) {
+      unmount(this.renderedComponent);
+    }
+  }
 
-    return parseCodeblockContents(json);
+  /**
+   * Renders and returns the Svelte component used to render a file
+   */
+  private renderCardForFile(contents: FileEmbedContents, el: HTMLElement) {
+    return fromResult(resolveFileReference(contents, this.app))
+      .andThen((file) => resolveFileCardProps(file, this.app))
+      .map((props) => {
+        return mount(FileCard, {
+          target: el,
+          props,
+        });
+      });
+  }
+
+  private renderCardForInlineLink(structure: CardStructure, el: HTMLElement) {
+    const card = fromCardStructure(structure);
+    const linkCardProps = resolveComponentPropsFromCard(card, this.app);
+
+    return mount(LinkCard, {
+      target: el,
+      props: linkCardProps,
+    });
+  }
+
+  private renderError(messages: string[], el: HTMLElement) {
+    return mount(Error, {
+      target: el,
+      props: {
+        messages,
+      },
+    });
   }
 }

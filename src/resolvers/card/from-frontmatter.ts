@@ -4,12 +4,14 @@ import Result from "true-myth/result";
 import Task, { fromPromise } from "true-myth/task";
 import { fromMaybe } from "true-myth/toolbelt";
 
-import type { FileCardProps } from "../components/file-card";
-import type { FileEmbedContents } from "../schema/code-block-contents";
-import { parseCard } from "../schema/card";
+import type { FileCardProps } from "../../components/FileCard.svelte";
+import type { FileEmbedContents } from "../../schema/code-block-contents";
 
-import { enhanceCard } from "./card";
-import { resolveImageProperties } from "./image-link";
+import { parseCardStructure } from "../../schema/card-structure";
+import { fromCardStructure, getFailureResultMessages } from "../../schema/card";
+
+import { enhanceCard } from "../card";
+import { extractImageProperties } from "../image-link";
 
 export function resolveFileReference(
   value: FileEmbedContents,
@@ -39,29 +41,25 @@ export function makeOnClickHandler(file: TFile, app: App) {
 export function resolveFileCardProps(
   file: TFile,
   app: App,
-): Task<FileCardProps, string> {
-  const resolveFrontmatter = new Promise<{ url: string }>((resolve) => {
+): Task<FileCardProps, string[]> {
+  const resolveFrontmatter = new Promise((resolve) => {
     app.fileManager.processFrontMatter(file, (frontmatter) => {
       resolve(frontmatter);
     });
   });
   const resolveFrontmatterTask = fromPromise(resolveFrontmatter).mapRejected(
-    () => `Frontmatter could not be resolved`,
+    () => [`Frontmatter could not be resolved`],
   );
 
-  return (
-    resolveFrontmatterTask
-      // Extract card props from file frontmatter
-      .andThen((frontmatter) =>
-        parseCard({
-          title: file.basename,
-          ...frontmatter,
-        }),
-      )
-      .map((card) => ({
-        ...enhanceCard(card),
-        ...resolveImageProperties(card, app),
-        onClick: makeOnClickHandler(file, app),
-      }))
-  );
+  return resolveFrontmatterTask
+    .andThen((frontmatter) =>
+      parseCardStructure(frontmatter).mapErr(getFailureResultMessages),
+    )
+    .map((cardStructure) => fromCardStructure(cardStructure))
+    .map((card) => ({
+      ...card,
+      ...enhanceCard(card),
+      ...extractImageProperties(card, app),
+      onClick: makeOnClickHandler(file, app),
+    }));
 }
