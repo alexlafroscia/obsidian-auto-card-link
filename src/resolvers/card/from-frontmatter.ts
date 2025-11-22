@@ -1,5 +1,5 @@
 import { App, Keymap, TFile } from "obsidian";
-import { of as maybeOf } from "true-myth/maybe";
+import { just, of as maybeOf } from "true-myth/maybe";
 import Result from "true-myth/result";
 import Task, { fromPromise } from "true-myth/task";
 import { fromMaybe } from "true-myth/toolbelt";
@@ -57,6 +57,7 @@ export function resolveFileCardProps(
     .map((cardStructure) => fromCardStructure(cardStructure))
     .map((card) => ({
       ...card,
+      title: card.title.map((maybeTitle) => maybeTitle.or(just(file.basename))),
       ...extractImageProperties(card, app),
       onClick: makeOnClickHandler(file, app),
     }));
