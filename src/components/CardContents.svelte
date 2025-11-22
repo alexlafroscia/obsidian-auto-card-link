@@ -89,6 +89,9 @@
 
 <style>
   .auto-card-link-host {
+    flex-grow: 1;
+    align-items: end;
+
     span {
       flex-grow: 1;
     }
