@@ -70,10 +70,19 @@ export class CodeBlockProcessor extends MarkdownRenderChild {
     return fromResult(resolveFileReference(contents, this.app))
       .andThen((file) => resolveFileCardProps(file, this.app))
       .map((props) => {
-        return mount(FileCard, {
-          target: el,
-          props,
-        });
+        return contents.file === "self"
+          ? // A "self" reference should link to the URL; otherwise the file contains
+            // a link to itself, which isn't that useful!
+            mount(LinkCard, {
+              target: el,
+              props,
+            })
+          : // Otherwise, render a link to the file; the URL can be opened or copied
+            // from the buttons in the card if the user wants that instead
+            mount(FileCard, {
+              target: el,
+              props,
+            });
       });
   }
 
