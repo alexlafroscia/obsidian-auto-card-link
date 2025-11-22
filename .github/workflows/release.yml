@@ -25,6 +25,7 @@ jobs:
       - uses: ArcticLampyrid/action-wait-for-workflow@v1.3.0
         with:
           workflow: verify.yml
+          wait-interval: 10
 
       # Recommended Release Workflow
       # https://docs.obsidian.md/Plugins/Releasing/Release+your+plugin+with+GitHub+Actions
