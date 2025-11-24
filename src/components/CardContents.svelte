@@ -1,10 +1,8 @@
 <script lang="ts" module>
   import type { Snippet } from "svelte";
-  import { Notice } from "obsidian";
   import { fromResult } from "true-myth/toolbelt";
 
   import type { CardProp, LinkCard } from "./common";
-  import Button from "./obsidian/Button.svelte";
 
   type CardPropValues = Record<keyof LinkCard, string | undefined>;
 
@@ -26,10 +24,9 @@
 <script lang="ts">
   interface Props {
     card: LinkCard;
-    buttons?: Snippet<[CardPropValues]>;
   }
 
-  let { buttons, card }: Props = $props();
+  let { card }: Props = $props();
 
   let propValues = $derived(extractPropValues(card));
   let { title, description, favicon, image, url } = $derived(propValues);
@@ -47,56 +44,32 @@
     />
   {/if}
 
-  {#if title}
-    <div class="link-card-title">
-      {title}
-    </div>
-  {/if}
-
-  {#if description}
-    <div class="link-card-description">
-      {description}
-    </div>
-  {/if}
-
-  <div class="link-card-host">
-    {#if favicon}
-      <img src={favicon} alt="Favicon" />
+  <div class="link-card-details">
+    {#if title}
+      <div class="link-card-title">
+        {title}
+      </div>
     {/if}
 
-    <span>{host}</span>
-  </div>
-
-  <div class="link-card-button-container">
-    {@render buttons?.(propValues)}
-
-    {#if url}
-      <Button
-        icon="copy"
-        tooltip={`Copy URL\n${url}`}
-        onClick={(event) => {
-          // Stop the click event from triggering on the card itself
-          event.preventDefault();
-          event.stopPropagation();
-
-          navigator.clipboard.writeText(url);
-          new Notice("URL copied to your clipboard");
-        }}
-      />
+    {#if description}
+      <div class="link-card-description">
+        {description}
+      </div>
     {/if}
+
+    <div class="link-card-host">
+      {#if favicon}
+        <img src={favicon} alt="Favicon" />
+      {/if}
+
+      <span>{host}</span>
+    </div>
   </div>
 </div>
 
 <style>
   .link-card-contents {
-    display: grid;
-    grid-template-columns: auto 1fr auto;
-    grid-template-rows: auto 1fr auto;
-    grid-template-areas:
-      "image title title"
-      "image description description"
-      "image host buttons";
-    gap: var(--size-2-2);
+    display: flex;
     height: 8em;
     max-height: 8em;
     transition: 20ms ease-in 0s;
@@ -104,7 +77,6 @@
     background: var(--background-primary-alt);
     border: solid var(--border-width) var(--divider-color);
     border-radius: var(--radius-s);
-    padding: var(--size-2-2);
 
     &:hover {
       background: var(--background-modifier-hover);
@@ -113,12 +85,23 @@
   }
 
   .link-card-thumbnail {
-    grid-area: image;
-    max-height: calc(100% - (2 * var(--size-2-2)));
+    max-height: 100%;
     border-radius: var(--radius-s) 0 0 var(--radius-s) !important;
     object-fit: cover;
     pointer-events: none;
-    margin: calc(var(--size-2-2) * -1);
+  }
+
+  .link-card-details {
+    display: grid;
+    grid-template-columns: 1fr var(--button-container-safe-width, auto);
+    grid-template-rows: auto 1fr auto;
+    grid-template-areas:
+      "title title"
+      "description description"
+      "host .";
+    gap: var(--size-2-2);
+    padding: var(--size-2-2);
+    flex-grow: 1;
   }
 
   .link-card-title {
@@ -162,20 +145,6 @@
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
-    }
-  }
-
-  .link-card-button-container {
-    grid-area: buttons;
-    display: flex;
-    opacity: 0;
-
-    .link-card-contents:hover & {
-      opacity: 1;
-    }
-
-    :global(.clickable-icon) {
-      --cursor: pointer;
     }
   }
 </style>
