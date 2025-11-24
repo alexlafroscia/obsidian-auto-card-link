@@ -32,6 +32,7 @@ export class SvelteComponentChild<
 
   onunload(): void {
     this.renderedComponent?.destroy();
+    this.renderedComponent = undefined;
   }
 
   /**
