@@ -10,8 +10,6 @@
   import { Notice } from "obsidian";
 
   import Button from "./obsidian/Button.svelte";
-  import { setIcon } from "./obsidian/set-icon";
-  import { setTooltip } from "./obsidian/set-tooltip";
   import CardContents from "./CardContents.svelte";
   import CardContainer from "./CardContainer.svelte";
 
