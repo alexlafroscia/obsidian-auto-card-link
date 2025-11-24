@@ -39,7 +39,7 @@
   {/if}
 {/snippet}
 
-<div class="auto-card-link-container">
+<div class="link-card-container">
   {@render children(buttons)}
 
   {#if showErrors}
@@ -48,3 +48,10 @@
     </div>
   {/if}
 </div>
+
+<style>
+  .link-card-container {
+    overflow: hidden;
+    user-select: none;
+  }
+</style>

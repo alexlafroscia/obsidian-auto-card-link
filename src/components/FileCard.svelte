@@ -17,7 +17,7 @@
 
 <CardContainer {card}>
   {#snippet children(containerButtons)}
-    <div class="auto-card-link-card" onclick={card.onClick}>
+    <div onclick={card.onClick}>
       <CardContents {card}>
         {#snippet buttons({ url })}
           {@render containerButtons()}

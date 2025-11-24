@@ -22,7 +22,7 @@
 
 <CardContainer {card}>
   {#snippet children(containerButtons)}
-    <a class="auto-card-link-card" {href}>
+    <a {href}>
       <CardContents {card}>
         {#snippet buttons()}
           {@render containerButtons()}
@@ -31,3 +31,9 @@
     </a>
   {/snippet}
 </CardContainer>
+
+<style>
+  a {
+    text-decoration: none;
+  }
+</style>
