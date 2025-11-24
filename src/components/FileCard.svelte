@@ -23,9 +23,9 @@
 
 <CardContainer {card}>
   {#snippet contents()}
-    <div onclick={card.onClick}>
+    <button class="link-card-open-file" onclick={card.onClick}>
       <CardContents {card} />
-    </div>
+    </button>
   {/snippet}
 
   {#snippet buttons()}
@@ -57,3 +57,24 @@
     {/if}
   {/snippet}
 </CardContainer>
+
+<style>
+  .link-card-open-file {
+    /* Remove Obsidian's natural `button` styling */
+    background-color: unset;
+    border-radius: unset;
+    border: unset;
+    box-shadow: unset;
+    color: unset;
+    font-size: unset;
+    font-weight: unset;
+    height: unset;
+    padding: unset;
+
+    /* Styling we actually need */
+    cursor: pointer;
+    display: block;
+    text-align: start;
+    width: 100%;
+  }
+</style>
