@@ -33,7 +33,7 @@
 <style>
   .auto-card-link-error-container {
     max-width: 780px;
-    border-radius: 8px;
+    border-radius: var(--error-card-radius, var(--radius-s));
     overflow: hidden;
     background-color: var(--background-modifier-error);
     padding: 10px;

@@ -1,5 +1,4 @@
 <script lang="ts" module>
-  import type { Snippet } from "svelte";
   import { fromResult } from "true-myth/toolbelt";
 
   import type { CardProp, LinkCard } from "./common";
@@ -85,7 +84,10 @@
     color: var(--link-external-color);
     background: var(--background-primary-alt);
     border: solid var(--border-width) var(--divider-color);
-    border-radius: var(--radius-s);
+    border-top-right-radius: var(--card-top-radius);
+    border-top-left-radius: var(--card-top-radius);
+    border-bottom-left-radius: var(--card-bottom-radius);
+    border-bottom-right-radius: var(--card-bottom-radius);
 
     &:hover {
       background: var(--background-modifier-hover);
@@ -104,16 +106,17 @@
     justify-content: center;
     overflow: hidden;
     position: relative;
-    border-radius: var(--radius-s) var(--radius-s) 0 0 !important;
+    border-radius: var(--card-top-radius) var(--card-top-radius) 0 0 !important;
     aspect-ratio: 2 / 1;
     flex-shrink: 0;
 
     @container card-container (width > 500px) {
-      border-radius: var(--radius-s) 0 0 var(--radius-s) !important;
+      border-radius: var(--card-top-radius) 0 0 var(--card-bottom-radius) !important;
     }
   }
 
   .link-card-thumbnail-background {
+    border-radius: 0 !important;
     filter: blur(12px);
     position: absolute;
     height: 100%;
@@ -121,6 +124,7 @@
   }
 
   .link-card-thumbnail {
+    border-radius: 0 !important;
     position: absolute;
     object-fit: contain;
     height: 100%;

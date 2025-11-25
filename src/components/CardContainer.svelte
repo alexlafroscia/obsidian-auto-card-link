@@ -22,7 +22,14 @@
 </script>
 
 <div class="link-card-container">
-  <div class="link-card-contents-wrapper">
+  <div
+    class={[
+      "link-card-contents-wrapper",
+      {
+        "show-errors": showErrors,
+      },
+    ]}
+  >
     {@render contents()}
 
     <div class="link-card-button-container">
@@ -53,6 +60,8 @@
 
 <style>
   .link-card-container {
+    --error-card-radius: 0 0 var(--radius-s) var(--radius-s);
+
     container: card-container / inline-size;
     overflow: hidden;
     user-select: none;
@@ -66,8 +75,15 @@
       1 * (2 * var(--size-2-2) + var(--icon-size))
     );
 
+    --card-top-radius: var(--radius-s);
+    --card-bottom-radius: var(--radius-s);
+
     /* Allows button container positioning */
     position: relative;
+
+    &.show-errors {
+      --card-bottom-radius: 0;
+    }
   }
 
   .link-card-button-container {
