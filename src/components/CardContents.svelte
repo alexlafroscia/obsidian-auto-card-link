@@ -36,12 +36,22 @@
 
 <div class="link-card-contents">
   {#if image}
-    <img
-      class="link-card-thumbnail"
-      src={image}
-      alt="Thumbnail"
-      draggable={false}
-    />
+    <div class="link-card-thumbnail-container">
+      <img
+        class="link-card-thumbnail-background"
+        src={image}
+        alt="Thumbnail background blur"
+        aria-hidden="true"
+        draggable={false}
+      />
+
+      <img
+        class="link-card-thumbnail"
+        src={image}
+        alt="Thumbnail"
+        draggable={false}
+      />
+    </div>
   {/if}
 
   <div class="link-card-details">
@@ -88,16 +98,32 @@
     }
   }
 
-  .link-card-thumbnail {
+  .link-card-thumbnail-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
     border-radius: var(--radius-s) var(--radius-s) 0 0 !important;
-    pointer-events: none;
     aspect-ratio: 2 / 1;
-    object-fit: cover;
+    flex-shrink: 0;
 
     @container card-container (width > 500px) {
       border-radius: var(--radius-s) 0 0 var(--radius-s) !important;
-      max-width: 16em !important;
     }
+  }
+
+  .link-card-thumbnail-background {
+    filter: blur(12px);
+    position: absolute;
+    height: 100%;
+    width: 100%;
+  }
+
+  .link-card-thumbnail {
+    position: absolute;
+    object-fit: contain;
+    height: 100%;
   }
 
   .link-card-details {
