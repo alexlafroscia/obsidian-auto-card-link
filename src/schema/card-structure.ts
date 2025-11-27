@@ -24,7 +24,6 @@ export const CardStructure = z.object({
   title: z.optional(z.any()),
   description: z.optional(z.any()),
   url: z.optional(z.any()),
-  host: z.optional(z.any()),
   image: z.optional(z.any()),
   favicon: z.optional(z.any()),
 });
