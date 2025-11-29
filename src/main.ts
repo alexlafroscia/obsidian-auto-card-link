@@ -14,7 +14,7 @@ import { linkRegex } from "src/regex";
 
 import { convertUrlToCodeBlock } from "./codeblock-generator";
 import { CodeBlockProcessor } from "./codeblock-processor";
-import { FileCardListView } from "./bases-views/file-card-list.svelte";
+import { FileCardListView } from "./bases-views/file-card-list";
 import { getViewOptions } from "./bases-views/file-card-list-config";
 
 function notifyUserOfError<T>(task: Task<T, string>): Task<T, void> {

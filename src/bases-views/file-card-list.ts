@@ -8,7 +8,7 @@ import { resolveBasesEntryCardProps } from "../resolvers/card/from-bases-entry";
 import { SvelteComponentChild } from "../svelte-component-child";
 
 export class FileCardListView extends BasesView {
-  type = "FileCardListView";
+  type = "file-cards";
 
   private fileCardList: SvelteComponentChild<FileCardListProps>;
 

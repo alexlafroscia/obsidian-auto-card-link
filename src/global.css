@@ -1,3 +1,9 @@
 .markdown-reading-view .block-language-cardlink {
   margin: var(--p-spacing) 0;
 }
+
+/* Configure padding around the cards in the Bases view */
+.bases-view[data-view-type="file-cards"] {
+  --bases-view-padding: var(--size-4-3);
+  --bases-embed-padding: var(--size-4-1) 1px;
+}
