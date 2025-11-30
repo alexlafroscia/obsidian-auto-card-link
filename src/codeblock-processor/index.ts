@@ -1,7 +1,8 @@
 import { App, MarkdownRenderChild, parseYaml } from "obsidian";
 import { of as maybeOf } from "true-myth/maybe";
 import { ok, tryOr } from "true-myth/result";
-import { fromResult as taskFromResult } from "true-myth/task";
+import { fromResult as taskFromResult, withRetries } from "true-myth/task";
+import { linear } from "true-myth/task/delay";
 import { fromMaybe, fromResult as maybeFromResult } from "true-myth/toolbelt";
 
 import {
@@ -19,7 +20,7 @@ import {
 } from "../resolvers/card/from-frontmatter";
 import { resolveComponentPropsFromCard } from "../resolvers/card-to-component-props";
 
-import { ErrorCodeblockRenderer } from "./error-card";
+import { ErrorCodeblockRenderer, type Props as ErrorProps } from "./error-card";
 import { LinkCardCodeblockRenderer } from "./link-card";
 import { FileCardCodeblockRenderer } from "./file-card";
 
@@ -56,30 +57,41 @@ export class CodeBlockProcessor extends MarkdownRenderChild {
   }
 
   async onload() {
-    const cardView = await taskFromResult(
-      tryOr("Failed to parse YAML", () => parseYaml(this.source)),
-    )
-      .andThen((yaml) => parseCodeblockContents(yaml))
-      .andThen((contents) => {
-        if ("file" in contents) {
-          return this.createFileCardRenderer(contents, this.containerEl);
-        } else {
-          return ok(this.createInlineLinkCardRenderer(contents));
-        }
-      })
-      .mapRejected((error) =>
-        Array.isArray(error)
-          ? error
-          : typeof error === "string"
-            ? [error]
-            : getFailureResultMessages(error),
-      )
-      .match({
-        Resolved: (value) => value,
-        Rejected: (reason) => {
-          return this.createErrorRenderer(reason);
-        },
-      });
+    const codeblockRenderer = withRetries(
+      () =>
+        taskFromResult(
+          tryOr("Failed to parse YAML", () => parseYaml(this.source)),
+        )
+          .andThen((yaml) => parseCodeblockContents(yaml))
+          .andThen((contents) => {
+            if ("file" in contents) {
+              return this.createFileCardRenderer(contents, this.containerEl);
+            } else {
+              return ok(this.createInlineLinkCardRenderer(contents));
+            }
+          })
+          .mapRejected((error) =>
+            Array.isArray(error)
+              ? error
+              : typeof error === "string"
+                ? [error]
+                : getFailureResultMessages(error),
+          ),
+      linear().take(100),
+    );
+
+    const cardView = await codeblockRenderer.match({
+      Resolved: (value) => value,
+      Rejected: (reason) => {
+        const latestRejectionMessages =
+          reason.rejections[reason.rejections.length - 1];
+
+        return this.createErrorRenderer({
+          title: `Tried ${reason.tries} times in ${reason.totalDuration}ms; latest error:`,
+          messages: latestRejectionMessages,
+        });
+      },
+    });
 
     this.addChild(cardView);
   }
@@ -143,7 +155,7 @@ export class CodeBlockProcessor extends MarkdownRenderChild {
     return new LinkCardCodeblockRenderer({ card: linkCardProps }, this.context);
   }
 
-  private createErrorRenderer(messages: string[]) {
-    return new ErrorCodeblockRenderer(messages, this.context);
+  private createErrorRenderer(props: ErrorProps) {
+    return new ErrorCodeblockRenderer(props, this.context);
   }
 }

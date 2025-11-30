@@ -2,6 +2,7 @@
   import type { Snippet } from "svelte";
 
   type WithMessages = {
+    title?: string;
     messages: string[];
   };
 
@@ -9,16 +10,18 @@
     children: Snippet;
   };
 
-  type Props = WithMessages | WithChildren;
+  export type Props = WithMessages | WithChildren;
 
   let errorProps: Props = $props();
 
   let children =
     "children" in errorProps ? errorProps.children : renderMessages;
+  let title = "title" in errorProps ? errorProps.title : undefined;
   let messages = "messages" in errorProps ? errorProps.messages : [];
 </script>
 
-{#snippet renderMessages(messages: string[])}
+{#snippet renderMessages({ title, messages }: WithMessages)}
+  <p>{title}</p>
   <ul>
     {#each messages as message}
       <li>{message}</li>
@@ -27,7 +30,7 @@
 {/snippet}
 
 <div class="auto-card-link-error-container">
-  {@render children(messages)}
+  {@render children({ title, messages })}
 </div>
 
 <style>
